@@ -77,11 +77,82 @@ void display(){
    
    }
 }
+void delete_from_beg(){
+   if(first==NULL){
+      printf("empty list! \n");
+   }
+   else if (first->next==NULL){
+      free(first);
+      first=last=NULL;
+   }
+   else{
+      struct SLL *temp=first;
+      first=first->next;
+      printf("%d is going to be deleted\n",temp->data);
+      free(temp);
+   }
+}
+void del_from_end(){
+   struct SLL *temp;
+   if(first==NULL){
+      printf("empty list !");
+
+   }
+   else if(first->next==NULL){
+    delete_from_beg();
+   }
+   else{
+      
+      temp=first;
+      while(temp->next!=last){
+         temp=temp->next;
+      }
+      last=temp;
+      temp=temp->next;
+      printf("%d is going to be delted \n",temp->data);
+      free(temp);
+      last->next=NULL;
+   }
+  
+}
+void del_at_sp(int pos){
+   struct SLL *temp;
+   if(pos<=0) printf("Can't perform deletion on empty list! \n");
+   else if (pos==1 || first->next==NULL) {
+      delete_from_beg();
+   }
+   else{
+      temp=first;
+      int i ;
+      for(i=1;i<(pos-1) && (temp->next!=last);i++){
+         temp=temp->next;
+      }
+      if(temp->next==last){
+         del_from_end();
+      }
+      else{
+         struct SLL *tempP;
+         tempP=temp->next;
+         temp->next=tempP->next;
+         printf("%d is going to delete from the list. \n",tempP->data);
+         free(tempP);
+      }
+   
+   }
+}
 int main(){
   insert_at_beginning(100);
   insert_at_beginning(200);
   insert_at_end(30);
   insert_at_sp(40,3);
+  display();
+  insert_at_sp(400,1);
+  display();
+  insert_at_sp(500,6);
+  display();
+  del_from_end();
+  display();
+  del_at_sp(1);
   display();
   return 0;
 }
