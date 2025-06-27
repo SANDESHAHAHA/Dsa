@@ -66,6 +66,7 @@ class LinkedList:
             count=1
             while count<pos-1 and itr.next is not None:
                 itr=itr.next
+                count+=1
             print(f"{itr.next.data} is going to be deleted.")
             self.head.next=self.head.next.next
 
