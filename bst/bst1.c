@@ -2,6 +2,7 @@
 #include<stdlib.h>
 struct BinaryTree{
     int data;
+    int height;
     struct BinaryTree *left;
     struct BinaryTree *right;
     struct BinaryTree *parent;
@@ -15,9 +16,53 @@ struct BinaryTree* createNode(int value){ //node ko address return gareko
  Newnode->left=NULL;
  Newnode->right=NULL;
  Newnode->parent=NULL;
+ Newnode->height=0;
  return Newnode; 
 }
-
+int  height(struct BinaryTree *root){
+    if(root==NULL) return -1;
+    else{
+        return root->height;
+    }
+}
+int getBalance(struct BinaryTree* root){
+    if(root==NULL) return 0;
+    else{
+        return height(root->left)-height(root->right);
+    }
+}
+int max(int a,int b){
+    return (a>b)?a:b;
+}
+void updateHeight(struct BinaryTree *root){
+    if(root){
+        root->height=1+max(height(root->left),height(root->right));
+    }
+}
+struct BinaryTree* leftrotate(struct BinaryTree *x){
+    struct BinaryTree *y=x->right;
+    struct BinaryTree *T2=y->left;
+    y->left=x;
+    x->right=T2;
+    y->parent=x->parent;
+    x->parent=y;
+    if(T2) T2->parent=x;
+    updateHeight(x);
+    updateHeight(y);
+    return y;
+}
+struct BinaryTree *rightrotate(struct BinaryTree * y){
+    struct BinaryTree *x=y->left;
+    struct BinaryTree *T2=x->right;
+    x->right=y;
+    y->left=T2;
+    x->parent=y->parent;
+    y->parent=x;
+    if(T2) T2->parent=y;
+    updateHeight(y);
+    updateHeight(x);
+    return x;
+}
 //Traversal 
 void preorder(struct BinaryTree *root){
    
@@ -54,6 +99,19 @@ struct BinaryTree *insert(struct BinaryTree *root,int data){
         root->right=insert(root->right,data);
         root->right->parent=root;
     }
+    // return root;
+    root->height=1+max(height(root->left),height(root->right));
+    int balance=getBalance(root);
+    if (balance>1 && data<root->left->data) return rightrotate(root); //rigth rotation
+    if(balance<-1 && data>root->right->data) return leftrotate(root); //left rotation
+    if(balance>1 && data>root->left->data) { //left-right rotation
+        root->left=leftrotate(root->left);
+        return rightrotate(root);
+    } 
+    if(balance<-1 && data<root->right->data){
+        root->right=rightrotate(root->right);
+        return leftrotate(root);
+    }  
     return root;
 }
 struct BinaryTree* Search(struct BinaryTree *root,int key){
@@ -71,7 +129,7 @@ struct BinaryTree* min(struct BinaryTree *root){
     }
     return root;
 }
-struct BinaryTree* max(struct BinaryTree *root){
+struct BinaryTree* find_max(struct BinaryTree *root){
     while(root->right!=NULL){
         root=root->right;
     }
@@ -90,7 +148,7 @@ else if (value>root->data){
     if(root->right) root->right->parent=root;
 }
 else{ //bhetisake paxi k garney bhane kura ho yeta 
-    if(root->left ==NULL){
+    if(root->left == NULL){
         struct BinaryTree *temp=root->right;
         if (temp){
             temp->parent=root->parent;
@@ -115,6 +173,22 @@ else{ //bhetisake paxi k garney bhane kura ho yeta
         if(root->right) root->right->parent=root;
     }
 }
+if(root==NULL){
+    return root;
+}
+root->height=1+max(height(root->left),height(root->right));
+int balance=getBalance(root);
+//roattions after delete
+if(balance>1 && getBalance(root->left)>=0) return rightrotate(root); //r0,r1 rotation
+if(balance>1 && getBalance(root->left)<0) { //R-1 rotation
+    root->left=leftrotate(root->left);
+    return rightrotate(root);
+}
+if(balance<-1 && getBalance(root->right)<=0) return leftrotate(root); //l1 or l0 rotation 
+if (balance<-1 && getBalance(root->right)>0){
+    root->right=rightrotate(root->right);
+    return leftrotate(root);
+}
 return root;
 }
 int main(){
@@ -136,7 +210,7 @@ int main(){
         case 2:printf("Enter the element to delete: ");
         scanf("%d",&element);
         root=delete_Node(root,element);
-        printf("%d deleted",element);
+        printf("%d deleted",element  );
         break;
         case 3:
         printf("Enter the element to search: ");
@@ -156,7 +230,7 @@ int main(){
         break;
         case 6:postorder(root);
         break;
-        case 7: temp=max(root);
+        case 7: temp=find_max(root);
              if(temp!=NULL){
                 printf("%d is the largest element",temp->data);
              }
