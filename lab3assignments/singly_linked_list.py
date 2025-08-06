@@ -17,7 +17,7 @@ class LinkedList:
             itr=itr.next
         itr.next=Node(data,None)
     def insert_at_sp(self,data,pos):
-        if pos<=0 :
+        if pos<=0 : 
             print("Invalid position")
             return
         elif pos==1: self.insert_at_beginning(data)
